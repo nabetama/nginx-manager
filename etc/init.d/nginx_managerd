@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# nginx_managerd - this script starts and stops nginx_managerd.
+#
+# chkconfig:   345 92 92
+# description: Stop? Start? Restart?
+# processname: nginx_managerd
+# pidfile:     /var/run/nginx_managerd.pid
+PID="/var/run/nginx_managerd.pid"
+
+if [ $# -ne 1 ]; then
+  echo "USAGE: nginx_managerd start|stop|restart"
+  exit 1
+fi
+
+command=$1
+
+is_root_check() {
+  if [ ${EUID:-${UID}} = 0 ]; then
+    echo "User check is done."
+  else
+    echo "Only to run program by ROOT!!"
+    exit 1
+  fi
+}
+
+start() {
+  echo "Start nginx_managerd daemon."
+  if [ -f $PID ]; then
+     echo "nginx_managerd daemon is already running."
+     return 1
+  fi
+  /usr/local/bin/python -B /usr/local/etc/nginx_managerd.py
+}
+
+stop() {
+  if [ -f $PID ]; then
+    echo "Stopping nginx_managerd."
+    kill -QUIT `cat $PID` && echo "OK" || echo "failed";
+    rm $PID
+  else
+    echo "$PID is not found." 
+    echo "nginx_managerd is already stopped."
+    return 1
+  fi
+}
+
+is_root_check
+
+case "$command" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    stop
+    start
+    ;;
+  *)
+esac
+exit 0

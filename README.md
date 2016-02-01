@@ -25,3 +25,8 @@ with open("{}.conf".format(fqdn), 'w+') as dest:
 - subprocess
 - python package.
     - Under investigation...
+
+#### Daemonize
+- python-daemon
+- python xxxx.py &*
+- multiprocess
